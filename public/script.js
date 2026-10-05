@@ -62,7 +62,43 @@ const themeIcon =
     document.getElementById("themeIcon");
 
 
+// ========================================
+// DOWNLOAD ELEMENTS
+// ========================================
+
+const downloadSection =
+    document.getElementById("downloadSection");
+
+const downloadBtn =
+    document.getElementById("downloadBtn");
+
+const continueDownloadBtn =
+    document.getElementById("continueDownloadBtn");
+
+
+// ========================================
+// GLOBAL STATE
+// ========================================
+
 let hls = null;
+
+let currentDirectUrl = "";
+
+let currentVideoName =
+    "Tera Player Video";
+
+let waitingForAdReturn =
+    false;
+
+let adWindow = null;
+
+
+// ========================================
+// ADSTERRA SMARTLINK
+// ========================================
+
+const ADSTERRA_SMARTLINK =
+    "https://directyp.org/4/eabbdade67a81b33cec1352ecdfe67a3";
 
 
 // ========================================
@@ -189,6 +225,7 @@ clearUrl.addEventListener(
         setMessage();
 
         videoUrl.focus();
+
     }
 );
 
@@ -220,7 +257,8 @@ function applyTheme(theme) {
 
     if (theme === "dark") {
 
-        themeIcon.textContent = "☀️";
+        themeIcon.textContent =
+            "☀️";
 
 
         themeToggle.setAttribute(
@@ -236,7 +274,8 @@ function applyTheme(theme) {
 
     } else {
 
-        themeIcon.textContent = "🌙";
+        themeIcon.textContent =
+            "🌙";
 
 
         themeToggle.setAttribute(
@@ -314,6 +353,7 @@ themeToggle.addEventListener(
             "tera_player_theme",
             newTheme
         );
+
     }
 );
 
@@ -572,6 +612,7 @@ function playHLS(
                 maxBufferLength: 30,
 
                 maxMaxBufferLength: 60
+
             });
 
 
@@ -616,7 +657,9 @@ function playHLS(
                         setMessage(
                             "Video ready. Tap the play button."
                         );
+
                     });
+
             }
         );
 
@@ -655,6 +698,7 @@ function playHLS(
                 playDirectVideo(
                     directUrl
                 );
+
             }
         );
 
@@ -695,7 +739,9 @@ function playHLS(
                         setMessage(
                             "Video ready. Tap the play button."
                         );
+
                     });
+
             },
 
             {
@@ -715,6 +761,7 @@ function playHLS(
                 playDirectVideo(
                     directUrl
                 );
+
             };
 
 
@@ -786,6 +833,7 @@ function playDirectVideo(url) {
             setMessage(
                 "Video ready. Tap the play button."
             );
+
         });
 
 
@@ -802,7 +850,362 @@ function playDirectVideo(url) {
                 "Video playback failed. The streaming server may be blocking browser playback.",
                 "error"
             );
+
         };
+}
+
+
+// ========================================
+// DOWNLOAD SECTION
+// ========================================
+
+function showDownloadSection(
+    directUrl,
+    filename
+) {
+
+    currentDirectUrl =
+        directUrl || "";
+
+
+    currentVideoName =
+        filename ||
+        "Tera Player Video";
+
+
+    if (
+        !downloadSection ||
+        !currentDirectUrl
+    ) {
+
+        return;
+    }
+
+
+    downloadSection.classList.remove(
+        "hidden"
+    );
+
+
+    downloadBtn.classList.remove(
+        "hidden"
+    );
+
+
+    continueDownloadBtn.classList.add(
+        "hidden"
+    );
+
+
+    continueDownloadBtn.disabled =
+        false;
+
+
+    continueDownloadBtn.innerHTML =
+        "<span>⬇️</span>" +
+        "<span>Continue Download</span>";
+}
+
+
+// ========================================
+// OPEN SMARTLINK
+// ========================================
+
+function openSmartLink() {
+
+    if (!currentDirectUrl) {
+
+        setMessage(
+            "Download link is not available.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    waitingForAdReturn =
+        true;
+
+
+    setMessage(
+        "Advertisement opened. Return here to continue your download.",
+        "loading"
+    );
+
+
+    /*
+     * SmartLink is opened in a new tab.
+     *
+     * This keeps Tera Player alive in the
+     * original tab.
+     */
+
+    try {
+
+        adWindow =
+            window.open(
+                ADSTERRA_SMARTLINK,
+                "_blank",
+                "noopener"
+            );
+
+    } catch (error) {
+
+        console.error(
+            "SmartLink open error:",
+            error
+        );
+
+        adWindow = null;
+    }
+
+
+    /*
+     * If browser blocks new tab,
+     * show Continue Download button
+     * so the user is never stuck.
+     */
+
+    if (!adWindow) {
+
+        waitingForAdReturn =
+            false;
+
+
+        downloadBtn.classList.add(
+            "hidden"
+        );
+
+
+        continueDownloadBtn.classList.remove(
+            "hidden"
+        );
+
+
+        setMessage(
+            "Advertisement could not open automatically. Continue when ready.",
+            "loading"
+        );
+
+        return;
+    }
+
+
+    downloadBtn.classList.add(
+        "hidden"
+    );
+}
+
+
+// ========================================
+// DOWNLOAD BUTTON
+// ========================================
+
+if (downloadBtn) {
+
+    downloadBtn.addEventListener(
+        "click",
+        () => {
+
+            openSmartLink();
+
+        }
+    );
+}
+
+
+// ========================================
+// USER RETURNS FROM AD
+// ========================================
+
+function handleAdReturn() {
+
+    if (!waitingForAdReturn) {
+        return;
+    }
+
+
+    /*
+     * Do not immediately show the button.
+     * Give the browser a small moment after
+     * returning from the ad tab.
+     */
+
+    waitingForAdReturn =
+        false;
+
+
+    setTimeout(
+        () => {
+
+            continueDownloadBtn.classList.remove(
+                "hidden"
+            );
+
+
+            setMessage(
+                "Welcome back. Continue your download below.",
+                "success"
+            );
+
+        },
+        500
+    );
+}
+
+
+// ========================================
+// VISIBILITY CHANGE
+// ========================================
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if (
+            document.visibilityState ===
+            "visible"
+        ) {
+
+            handleAdReturn();
+        }
+
+    }
+);
+
+
+// ========================================
+// PAGE SHOW
+// ========================================
+
+window.addEventListener(
+    "pageshow",
+    () => {
+
+        handleAdReturn();
+
+    }
+);
+
+
+// ========================================
+// ACTUAL DOWNLOAD
+// ========================================
+
+function continueDownload() {
+
+    if (!currentDirectUrl) {
+
+        setMessage(
+            "Download URL is not available.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    continueDownloadBtn.disabled =
+        true;
+
+
+    continueDownloadBtn.innerHTML =
+        "<span>⏳</span>" +
+        "<span>Starting Download...</span>";
+
+
+    setMessage(
+        "Starting video download...",
+        "loading"
+    );
+
+
+    /*
+     * First try the browser download
+     * attribute.
+     */
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        currentDirectUrl;
+
+
+    link.download =
+        currentVideoName;
+
+
+    link.target =
+        "_blank";
+
+
+    link.rel =
+        "noopener";
+
+
+    link.style.display =
+        "none";
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    /*
+     * Some remote video servers ignore
+     * the HTML download attribute.
+     *
+     * In that case the new tab gives the
+     * browser a chance to handle the URL.
+     */
+
+    setTimeout(
+        () => {
+
+            continueDownloadBtn.disabled =
+                false;
+
+
+            continueDownloadBtn.innerHTML =
+                "<span>⬇️</span>" +
+                "<span>Continue Download</span>";
+
+
+            setMessage(
+                "Download request sent.",
+                "success"
+            );
+
+        },
+        1500
+    );
+}
+
+
+// ========================================
+// CONTINUE DOWNLOAD BUTTON
+// ========================================
+
+if (continueDownloadBtn) {
+
+    continueDownloadBtn.addEventListener(
+        "click",
+        () => {
+
+            continueDownload();
+
+        }
+    );
 }
 
 
@@ -913,6 +1316,23 @@ extractBtn.addEventListener(
         playerSection.classList.add(
             "hidden"
         );
+
+
+        downloadSection.classList.add(
+            "hidden"
+        );
+
+
+        currentDirectUrl =
+            "";
+
+
+        currentVideoName =
+            "Tera Player Video";
+
+
+        waitingForAdReturn =
+            false;
 
 
         // ==================================
@@ -1053,6 +1473,16 @@ extractBtn.addEventListener(
 
 
             // =================================
+            // DOWNLOAD LINK
+            // =================================
+
+            showDownloadSection(
+                video.directUrl,
+                video.name
+            );
+
+
+            // =================================
             // SHOW INFORMATION
             // =================================
 
@@ -1121,6 +1551,11 @@ extractBtn.addEventListener(
                 "hidden"
             );
 
+
+            downloadSection.classList.add(
+                "hidden"
+            );
+
         } finally {
 
             extractBtn.disabled =
@@ -1135,7 +1570,9 @@ extractBtn.addEventListener(
             extractBtn.innerHTML =
                 '<span class="extract-icon">▶</span>' +
                 '<span class="extract-text">Extract Video</span>';
+
         }
+
     }
 );
 
@@ -1156,7 +1593,9 @@ videoUrl.addEventListener(
             event.preventDefault();
 
             extractBtn.click();
+
         }
+
     }
 );
 
@@ -1178,6 +1617,7 @@ videoPlayer.addEventListener(
             "Video is playing.",
             "success"
         );
+
     }
 );
 
@@ -1190,6 +1630,7 @@ videoPlayer.addEventListener(
             "Buffering video...",
             "loading"
         );
+
     }
 );
 
@@ -1201,6 +1642,7 @@ videoPlayer.addEventListener(
         console.log(
             "Video can play"
         );
+
     }
 );
 
@@ -1212,6 +1654,7 @@ videoPlayer.addEventListener(
         setMessage(
             "Video finished."
         );
+
     }
 );
 
@@ -1224,5 +1667,6 @@ videoPlayer.addEventListener(
             "HTML5 video error:",
             videoPlayer.error
         );
+
     }
 );
