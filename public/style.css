@@ -1636,3 +1636,166 @@ input:focus-visible,
         animation: none !important;
     }
 }
+
+
+/* ========================================
+   DOWNLOAD SECTION
+======================================== */
+
+.download-section {
+    width: 100%;
+    margin-top: 18px;
+    padding: 18px;
+    box-sizing: border-box;
+
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    text-align: center;
+}
+
+
+/* ========================================
+   DOWNLOAD BUTTONS
+======================================== */
+
+.download-button,
+.continue-download-button {
+
+    width: 100%;
+    min-height: 54px;
+
+    border: none;
+    outline: none;
+
+    border-radius: 15px;
+
+    padding: 14px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 9px;
+
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    color: #061016;
+
+    background:
+        linear-gradient(
+            135deg,
+            #39e6ff 0%,
+            #43f58b 100%
+        );
+
+    box-shadow:
+        0 10px 30px
+        rgba(40, 220, 220, 0.18);
+
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.download-button:hover,
+.continue-download-button:hover {
+
+    opacity: 0.94;
+
+    box-shadow:
+        0 12px 35px
+        rgba(40, 220, 220, 0.25);
+}
+
+
+.download-button:active,
+.continue-download-button:active {
+
+    transform: scale(0.98);
+}
+
+
+.download-button:disabled,
+.continue-download-button:disabled {
+
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+/* ========================================
+   DOWNLOAD ICON
+======================================== */
+
+.download-button span:first-child,
+.continue-download-button span:first-child {
+
+    font-size: 19px;
+    line-height: 1;
+}
+
+
+/* ========================================
+   DOWNLOAD NOTE
+======================================== */
+
+.download-note {
+
+    margin: 10px 0 0;
+
+    font-size: 12px;
+    line-height: 1.5;
+
+    color: rgba(255, 255, 255, 0.58);
+}
+
+
+/* ========================================
+   CONTINUE DOWNLOAD
+======================================== */
+
+.continue-download-button {
+
+    margin-top: 12px;
+}
+
+
+/* ========================================
+   HIDDEN
+======================================== */
+
+.download-section .hidden,
+.hidden {
+
+    display: none !important;
+}
+
+
+/* ========================================
+   LIGHT THEME
+======================================== */
+
+html[data-theme="light"] .download-section {
+
+    background: rgba(0, 0, 0, 0.025);
+
+    border-color:
+        rgba(0, 0, 0, 0.08);
+}
+
+
+html[data-theme="light"] .download-note {
+
+    color:
+        rgba(0, 0, 0, 0.55);
+}
